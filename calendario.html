@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 80%;
+        margin: 0 auto;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid #ccc;
+        text-align: center;
+      }
+
+      th,
+      td {
+        padding: 10px;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      td {
+        cursor: pointer;
+      }
+
+      .selected {
+        background-color: #3498db;
+        color: #fff;
+      }
+
+      .contenedor {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <button id="mostrarTabla">Mostrar/Ocultar Tabla</button>
+    <button id="lessMonth" onclick="oneLessMonth()">Menos</button>
+    <button id="addMonth" type="button" onclick="oneMoreMonth()">
+      M&aacute;s
+    </button>
+    <button id="today" type="button" onclick="today()">Hoy</button>
+
+    <div id="contenedorCalendario" style="display: none">
+      <!-- index.html -->
+
+      <select id="month" name="meses" title="meses">
+        <option value="0">Enero</option>
+        <option value="1">Febrero</option>
+        <option value="2">Marzo</option>
+        <option value="3">Abril</option>
+        <option value="4">Mayo</option>
+        <option value="5">Junio</option>
+        <option value="6">Julio</option>
+        <option value="7">Agosto</option>
+        <option value="8">Septiembre</option>
+        <option value="9">Octubre</option>
+        <option value="10">Noviembre</option>
+        <option value="11">Diciembre</option>
+      </select>
+
+      <select id="year" name="anios" title="anios"></select>
+
+      <table id="calendar">
+        <thead>
+          <tr>
+            <th>Domingo</th>
+            <th>Lunes</th>
+            <th>Martes</th>
+            <th>Miércoles</th>
+            <th>Jueves</th>
+            <th>Viernes</th>
+            <th>Sábado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Las celdas del calendario se generarán aquí con JavaScript -->
+        </tbody>
+      </table>
+
+      <input
+        id="selectedDateInput"
+        type="text"
+        readonly
+        placeholder="DD./MM./YYYY."
+      />
+    </div>
+
+    <script>
+      const botonMostrarTabla = document.getElementById("mostrarTabla");
+      const tabla = document.getElementById("contenedorCalendario");
+
+      botonMostrarTabla.addEventListener("click", function () {
+        if (tabla.style.display === "none") {
+          tabla.style.display = "block";
+        } else {
+          tabla.style.display = "none";
+        }
+      });
+    </script>
+
+    <script>
+      function today() {
+        // Obtener la fecha actual
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        // Configurar los valores iniciales de los menús desplegables
+        document.getElementById("month").value = currentMonth.toString();
+        document.getElementById("year").value = currentYear.toString();
+        // Generar el calendario inicial
+        generateCalendar(currentMonth, currentYear);
+      }
+
+      function oneMoreMonth() {
+        const addMonth = document.getElementById("addMonth"); //boton
+
+        const monthSelect = document.getElementById("month");
+        const yearSelect = document.getElementById("year");
+
+        const indiceSeleccionado = monthSelect.selectedIndex; //indice del mes seleccionado
+        const indiceYearSeleccionado = yearSelect.selectedIndex; //indice del mes seleccionado
+
+        const lastSelectIndex = yearSelect.options.length - 1;
+
+        // Verifica si hay opciones siguientes
+        if (indiceSeleccionado < monthSelect.options.length - 1) {
+          // Incrementa el índice para seleccionar la siguiente opción
+          monthSelect.selectedIndex = indiceSeleccionado + 1;
+          //Refresca el calendario al cambiar el mes
+          generateCalendar(
+            parseInt(monthSelect.value),
+            parseInt(yearSelect.value)
+          );
+        } else if (indiceYearSeleccionado < lastSelectIndex) {
+          monthSelect.selectedIndex = 0;
+          yearSelect.selectedIndex = indiceYearSeleccionado + 1;
+          console.log(yearSelect.selectedIndex);
+          //Refresca el calendario al cambiar el mes
+          generateCalendar(
+            parseInt(monthSelect.value),
+            parseInt(yearSelect.value)
+          );
+        }
+      }
+
+      function oneLessMonth() {
+        const addMonth = document.getElementById("addMonth"); //boton
+
+        const monthSelect = document.getElementById("month");
+        const yearSelect = document.getElementById("year");
+
+        const indiceSeleccionado = monthSelect.selectedIndex; //indice del mes seleccionado
+        const indiceYearSeleccionado = yearSelect.selectedIndex; //indice del mes seleccionado
+
+        const firstSelectIndex = yearSelect.options[0].value;
+
+        // Verifica si hay opciones siguientes
+        if (indiceSeleccionado > 0) {
+          // Reduce el índice para seleccionar la siguiente opción
+          monthSelect.selectedIndex = indiceSeleccionado - 1;
+          generateCalendar(
+            parseInt(monthSelect.value),
+            parseInt(yearSelect.value)
+          );
+        } else if (indiceSeleccionado == 0 && firstSelectIndex > 0) {
+          // Disminuye el índice para seleccionar la siguiente opción
+          monthSelect.selectedIndex = 11; //Para iniciar en diciembre
+          yearSelect.selectedIndex = indiceYearSeleccionado - 1;
+
+          generateCalendar(
+            parseInt(monthSelect.value),
+            parseInt(yearSelect.value)
+          );
+        }
+      }
+    </script>
+
+    <script>
+      function dateToInput(event) {
+        const selectedCells = document.querySelectorAll(".selected");
+        for (const cell of selectedCells) {
+          cell.classList.remove("selected");
+        }
+        event.target.classList.add("selected");
+
+        // Obtén la fecha seleccionada
+        const selectedDay = event.target.textContent;
+        const selectedMonth = parseInt(document.getElementById("month").value);
+        const selectedYear = parseInt(document.getElementById("year").value);
+        const options = {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        };
+        // Formatea la fecha seleccionada
+        const formattedDate = new Date(
+          selectedYear,
+          selectedMonth,
+          selectedDay
+        ).toLocaleDateString("es-ES", options);
+
+        // Establece la fecha en el input
+        document.getElementById("selectedDateInput").value = formattedDate;
+        console.log(formattedDate);
+      }
+    </script>
+    <script>
+      function generateCalendar(month, year) {
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        const daysInMonth = lastDay.getDate();
+        const startingDay = firstDay.getDay();
+        const calendarTable = document
+          .getElementById("calendar")
+          .getElementsByTagName("tbody")[0];
+        calendarTable.innerHTML = "";
+
+        let date = 1;
+
+        for (let i = 0; i < 6; i++) {
+          const row = document.createElement("tr");
+          for (let j = 0; j < 7; j++) {
+            const cell = document.createElement("td");
+            if (i === 0 && j < startingDay) {
+              // Celdas vacías antes del primer día del mes
+            } else if (date <= daysInMonth) {
+              cell.textContent = date;
+              cell.addEventListener("click", highlightDate);
+              date++;
+            }
+            row.appendChild(cell);
+
+            // Asocia la función dateToInput a las celdas del calendario
+            const dateCells = document.querySelectorAll("#calendar td");
+            dateCells.forEach((cell) => {
+              cell.addEventListener("click", dateToInput);
+            });
+          }
+          calendarTable.appendChild(row);
+        }
+      }
+
+      function highlightDate(event) {
+        const selectedCells = document.querySelectorAll(".selected");
+        for (const cell of selectedCells) {
+          cell.classList.remove("selected");
+          //console.log(cell);
+        }
+        event.target.classList.add("selected");
+      }
+
+      const monthSelect = document.getElementById("month");
+      const yearSelect = document.getElementById("year");
+      monthSelect.addEventListener("change", () => {
+        generateCalendar(
+          parseInt(monthSelect.value),
+          parseInt(yearSelect.value)
+        );
+      });
+      yearSelect.addEventListener("change", () => {
+        generateCalendar(
+          parseInt(monthSelect.value),
+          parseInt(yearSelect.value)
+        );
+      });
+
+      // Inicializar el calendario
+      generateCalendar(new Date().getMonth(), new Date().getFullYear());
+    </script>
+    <script>
+      //Llear el option de año desde 1960 a 2049
+      var select = document.getElementById("year");
+      for (var i = 1960; i <= 2049; i++) {
+        var option = document.createElement("option");
+        option.text = i;
+        option.value = i;
+        select.appendChild(option);
+      }
+    </script>
+    <script>
+      // Obtener la fecha actual
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+
+      // Configurar los valores iniciales de los menús desplegables
+      document.getElementById("month").value = currentMonth.toString();
+      document.getElementById("year").value = currentYear.toString();
+      // Generar el calendario inicial
+      generateCalendar(currentMonth, currentYear);
+    </script>
+  </body>
+</html>
